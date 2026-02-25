@@ -1,63 +1,42 @@
-import { useEffect, useRef } from "react";
-import Blog from "./components/Blog";
-import BlogForm from "./components/BlogForm";
+import { useEffect } from "react";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
-import Togglable from "./components/Togglable";
 
+import { Routes, Route, useMatch } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { initializeBlogs } from "./reducers/blogReducer.js";
-import { initializeUser, logoutUser } from "./reducers/loginReducer.js";
+import { initializeLogin } from "./reducers/loginReducer.js";
+import Menu from "./components/Menu.jsx";
+import BlogList from "./components/BlogList.jsx";
+import { initializeUsers } from "./reducers/userReducer.js";
+import UserList from "./components/UserList.jsx";
+import UserView from "./components/UserView.jsx";
+import BlogView from "./components/BlogView.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
 
-  const blogs = useSelector((state) => {
-    return state.blogs
-      .map((blog) => blog)
-      .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
-  });
-
-  const user = useSelector((state) => state.login);
-
-  const blogFormRef = useRef();
-
   useEffect(() => {
     dispatch(initializeBlogs());
-    dispatch(initializeUser());
+    dispatch(initializeLogin());
+    dispatch(initializeUsers());
   }, [dispatch]);
-
-  const handleLogout = async (event) => {
-    event.preventDefault();
-
-    dispatch(logoutUser());
-  };
 
   return (
     <div>
-      <h2>blogs</h2>
+      <Menu />
+
       <Notification notificationType="error" />
       <Notification notificationType="success" />
-      {!user && <LoginForm />}
-      {user && (
-        <p>
-          {user.name} logged in
-          <button onClick={handleLogout}>logout</button>
-        </p>
-      )}
 
-      {user && (
-        <Togglable
-          buttonLabelShow="create new blog"
-          buttonLabelHide="cancel"
-          ref={blogFormRef}
-        >
-          <h2>create new</h2>
-          <BlogForm toggleComponent={blogFormRef} />
-        </Togglable>
-      )}
-      {user && blogs.map((blog) => <Blog key={blog.id} blog={blog} />)}
+      <Routes>
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/" element={<BlogList />} />
+        <Route path="/users" element={<UserList />} />
+        <Route path="/users/:id" element={<UserView />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
+      </Routes>
     </div>
   );
 };

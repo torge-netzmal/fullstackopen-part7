@@ -1,64 +1,76 @@
-const blogsRouter = require('express').Router()
-const Blog = require('../models/blog')
-const middleware = require('../utils/middleware')
+const blogsRouter = require("express").Router();
+const Blog = require("../models/blog");
+const middleware = require("../utils/middleware");
 const mongoose = require("mongoose");
 
+blogsRouter.post("/", middleware.userExtractor, async (request, response) => {
+  const user = request.user;
 
-blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
+  const blog = new Blog({
+    ...request.body,
+    user: new mongoose.Types.ObjectId(user._id),
+  });
+  const result = await blog.save();
+  user.blogs = [...user.blogs, new mongoose.Types.ObjectId(result._id)];
+  await user.save();
 
-  const user = request.user
+  response.status(201).json(await result.populate("user"));
+});
 
-  const blog = new Blog({...request.body, user: new mongoose.Types.ObjectId(user._id)})
-  const result = await blog.save()
-  user.blogs = [...user.blogs, new mongoose.Types.ObjectId(result._id)]
-  await user.save()
+blogsRouter.get("/", async (request, response) => {
+  const blogs = await Blog.find({}).populate("user");
+  response.json(blogs);
+});
 
-  response.status(201).json(await result.populate('user'))
-})
+blogsRouter.put("/:id", async (request, response) => {
+  const { user, likes, author, title, url, comments } = request.body;
 
-blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog
-    .find({})
-    .populate('user')
-  response.json(blogs)
-})
-
-blogsRouter.put('/:id', async (request, response) => {
-  const {user, likes, author, title, url} = request.body
-
-  const blog = await Blog.findById(request.params.id)
+  const blog = await Blog.findById(request.params.id);
   if (!blog) {
-    return response.status(404).end()
+    return response.status(404).end();
   }
-  blog.likes = likes
-  blog.user = new mongoose.Types.ObjectId(user)
-  blog.author = author
-  blog.title = title
-  blog.url = url
-  const updatedBlog = await (await blog.save()).populate('user');
-  return response.json(updatedBlog)
+  blog.likes = likes;
+  blog.user = new mongoose.Types.ObjectId(user);
+  blog.author = author;
+  blog.title = title;
+  blog.url = url;
+  blog.comments = comments;
+  const updatedBlog = await (await blog.save()).populate("user");
+  return response.json(updatedBlog);
+});
 
+blogsRouter.post("/:id/comments", async (request, response) => {
+  const { comment } = request.body;
 
-})
-
-blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
-
-  const user = request.user
-  const blog = await Blog.findById(request.params.id)
+  const blog = await Blog.findById(request.params.id);
   if (!blog) {
-    return response.status(404).end()
+    return response.status(404).end();
   }
+  blog.comments = blog.comments.concat(comment);
+  const updatedBlog = await (await blog.save()).populate("user");
+  return response.json(updatedBlog);
+});
 
-  if (blog.user.toString() === user._id.toString()) {
-    await Blog.findByIdAndDelete(request.params.id)
-    user.blogs = user.blogs.filter(b => b.toString() !== request.params.id)
-    await user.save()
-  } else {
-    response.status(401).json({error: 'Unauthorized'})
-  }
+blogsRouter.delete(
+  "/:id",
+  middleware.userExtractor,
+  async (request, response) => {
+    const user = request.user;
+    const blog = await Blog.findById(request.params.id);
+    if (!blog) {
+      return response.status(404).end();
+    }
 
+    if (blog.user.toString() === user._id.toString()) {
+      await Blog.findByIdAndDelete(request.params.id);
+      user.blogs = user.blogs.filter((b) => b.toString() !== request.params.id);
+      await user.save();
+    } else {
+      response.status(401).json({ error: "Unauthorized" });
+    }
 
-  response.status(204).end()
-})
+    response.status(204).end();
+  },
+);
 
-module.exports = blogsRouter
+module.exports = blogsRouter;

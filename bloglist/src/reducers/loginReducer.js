@@ -20,7 +20,7 @@ const userSlice = createSlice({
 
 const { setUser } = userSlice.actions;
 
-export const initializeUser = () => {
+export const initializeLogin = () => {
   return async (dispatch) => {
     const loggedUserJSON = window.localStorage.getItem("loggedBloglistappUser");
     const loggedUser = loggedUserJSON ? JSON.parse(loggedUserJSON) : null;
