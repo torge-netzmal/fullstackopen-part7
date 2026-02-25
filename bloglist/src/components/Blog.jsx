@@ -1,22 +1,36 @@
-import {useState} from "react";
+import { useState } from "react";
+import { like, removeBlog } from "../reducers/blogReducer.js";
+import { useDispatch, useSelector } from "react-redux";
 
-const Blog = ({blog, handleLike, user, handleDelete}) => {
-  const [visible, setVisible] = useState(false)
+const Blog = ({ blog }) => {
+  const [visible, setVisible] = useState(false);
 
-  const showWhenVisible = {display: visible ? '' : 'none'}
+  const user = useSelector((state) => state.login);
+
+  const dispatch = useDispatch();
+  const showWhenVisible = { display: visible ? "" : "none" };
 
   const toggleVisibility = () => {
-    setVisible(!visible)
-  }
+    setVisible(!visible);
+  };
 
+  const handleLike = (blog) => {
+    dispatch(like(blog));
+  };
+
+  const handleDelete = (blog) => {
+    if (window.confirm(`Remove blog '${blog.title}' by ${blog.author}`)) {
+      dispatch(removeBlog(blog));
+    }
+  };
 
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
-    border: 'solid',
+    border: "solid",
     borderWidth: 1,
-    marginBottom: 5
-  }
+    marginBottom: 5,
+  };
   return (
     <div style={blogStyle}>
       <div>
@@ -26,7 +40,8 @@ const Blog = ({blog, handleLike, user, handleDelete}) => {
 
       <div style={showWhenVisible}>
         <div>{blog.url}</div>
-        <div>likes {blog.likes ?? 0}
+        <div>
+          likes {blog.likes ?? 0}
           <button onClick={() => handleLike(blog)}>like</button>
         </div>
         <div>{blog.user?.name}</div>
@@ -35,7 +50,6 @@ const Blog = ({blog, handleLike, user, handleDelete}) => {
         )}
       </div>
     </div>
-
-  )
-}
-export default Blog
+  );
+};
+export default Blog;
