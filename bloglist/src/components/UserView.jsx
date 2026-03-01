@@ -9,15 +9,38 @@ const UserView = () => {
 
   return user ? (
     <div>
-      <h1>{user.name}</h1>
-      <h2>added blogs</h2>
-      <ul>
-        {user.blogs.map((blog) => (
-          <li key={blog.id}>
-            <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-          </li>
-        ))}
-      </ul>
+      <h1
+        className={
+          "flex flex-wrap text-4xl font-bold mb-2 text-gray-700 gap-2 "
+        }
+      >
+        {user.name}
+      </h1>
+      <div
+        className={
+          "flex flex-col border-1 border-gray-300  bg-gray-200  p-2 m-2 rounded-lg shadow"
+        }
+      >
+        <h2
+          className={
+            "flex flex-wrap text-2xl font-bold mb-2 text-gray-700 gap-2 "
+          }
+        >
+          added blogs
+        </h2>
+        <ul className={"space-y-2"}>
+          {user.blogs.map((blog) => (
+            <li
+              className={
+                "rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              }
+              key={blog.id}
+            >
+              <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   ) : (
     <p>User not found</p>

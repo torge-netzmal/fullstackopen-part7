@@ -14,14 +14,28 @@ const BlogList = () => {
   });
   return (
     <div>
-      <h1>blog app</h1>
+      <h1 className="text-4xl font-bold mb-2 underline text-gray-700">
+        blogging app
+      </h1>
       <Togglable
         buttonLabelShow="create new blog"
         buttonLabelHide="cancel"
         ref={blogFormRef}
       >
-        <h2>create new</h2>
-        <BlogForm toggleComponent={blogFormRef} />
+        <div
+          className={
+            "border-1 border-gray-300  bg-gray-200  p-2 m-2 rounded-lg shadow"
+          }
+        >
+          <h2
+            className={
+              "flex flex-wrap text-2xl font-bold mb-2 text-gray-700 gap-2 "
+            }
+          >
+            create new
+          </h2>
+          <BlogForm toggleComponent={blogFormRef} />
+        </div>
       </Togglable>
       <div>
         {user && blogs.map((blog) => <Blog key={blog.id} blog={blog} />)}

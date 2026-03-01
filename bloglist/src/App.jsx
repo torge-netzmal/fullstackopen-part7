@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 
-import { Routes, Route, useMatch } from "react-router-dom";
+import { Routes, Route, useMatch, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { initializeBlogs } from "./reducers/blogReducer.js";
@@ -17,6 +17,8 @@ import BlogView from "./components/BlogView.jsx";
 const App = () => {
   const dispatch = useDispatch();
 
+  const user = useSelector((state) => state.login);
+
   useEffect(() => {
     dispatch(initializeBlogs());
     dispatch(initializeLogin());
@@ -29,14 +31,16 @@ const App = () => {
 
       <Notification notificationType="error" />
       <Notification notificationType="success" />
-
-      <Routes>
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/" element={<BlogList />} />
-        <Route path="/users" element={<UserList />} />
-        <Route path="/users/:id" element={<UserView />} />
-        <Route path="/blogs/:id" element={<BlogView />} />
-      </Routes>
+      {!user && <Navigate replace to="/login" />}
+      <div className={"px-8 mt-4"}>
+        <Routes>
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/" element={<BlogList />} />
+          <Route path="/users" element={<UserList />} />
+          <Route path="/users/:id" element={<UserView />} />
+          <Route path="/blogs/:id" element={<BlogView />} />
+        </Routes>
+      </div>
     </div>
   );
 };
