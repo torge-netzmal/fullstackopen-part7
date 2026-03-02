@@ -10,7 +10,7 @@ const config = (env, argv) => {
     : 'http://localhost:3001/notes'
 
   return {
-    entry: './src/index.js',
+    entry: './src/index.ts',
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: 'main.js'
